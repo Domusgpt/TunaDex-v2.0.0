@@ -11,22 +11,46 @@ from googleapiclient.discovery import build
 from tunadex.auth.oauth import load_credentials
 from tunadex.config import GCP_LOCATION, GCP_SA_KEY, GCP_SA_KEY_FILE, GOOGLE_SHEETS_ID
 
+# Scopes needed by the service account for Sheets and Drive access
+_SA_SCOPES = [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive",
+]
+
+
+def _get_sa_credentials():
+    """Load service account credentials scoped for Sheets and Drive.
+
+    Prefers GCP_SA_KEY_FILE (path) over GCP_SA_KEY (JSON string).
+    """
+    if GCP_SA_KEY_FILE and os.path.exists(GCP_SA_KEY_FILE):
+        return sa_module.Credentials.from_service_account_file(GCP_SA_KEY_FILE, scopes=_SA_SCOPES)
+
+    if GCP_SA_KEY:
+        info = json.loads(GCP_SA_KEY)
+        return sa_module.Credentials.from_service_account_info(info, scopes=_SA_SCOPES)
+
+    raise EnvironmentError(
+        "No GCP service account credentials found. Set GCP_SA_KEY (JSON string) "
+        "or GCP_SA_KEY_FILE (path) in your environment."
+    )
+
 
 def get_gmail_service():
-    """Build authenticated Gmail API v1 service."""
+    """Build authenticated Gmail API v1 service (requires OAuth2 token)."""
     creds = load_credentials()
     return build("gmail", "v1", credentials=creds)
 
 
 def get_drive_service():
-    """Build authenticated Google Drive API v3 service."""
-    creds = load_credentials()
+    """Build authenticated Google Drive API v3 service using service account."""
+    creds = _get_sa_credentials()
     return build("drive", "v3", credentials=creds)
 
 
 def get_sheets_client() -> gspread.Client:
-    """Build authenticated gspread client using OAuth2 credentials."""
-    creds = load_credentials()
+    """Build authenticated gspread client using service account."""
+    creds = _get_sa_credentials()
     return gspread.authorize(creds)
 
 
@@ -39,17 +63,17 @@ def get_spreadsheet() -> gspread.Spreadsheet:
 def get_gcp_credentials():
     """Load GCP service account credentials for Vertex AI (Gemini).
 
-    Reads from GCP_SA_KEY env var (JSON string) or GCP_SA_KEY_FILE path.
+    Prefers GCP_SA_KEY_FILE (path) over GCP_SA_KEY (JSON string).
     """
-    if GCP_SA_KEY:
-        info = json.loads(GCP_SA_KEY)
-        return sa_module.Credentials.from_service_account_info(info), info.get("project_id")
-
     if GCP_SA_KEY_FILE and os.path.exists(GCP_SA_KEY_FILE):
         creds = sa_module.Credentials.from_service_account_file(GCP_SA_KEY_FILE)
         with open(GCP_SA_KEY_FILE) as f:
             info = json.load(f)
         return creds, info.get("project_id")
+
+    if GCP_SA_KEY:
+        info = json.loads(GCP_SA_KEY)
+        return sa_module.Credentials.from_service_account_info(info), info.get("project_id")
 
     raise EnvironmentError(
         "No GCP service account credentials found. Set GCP_SA_KEY (JSON string) "
