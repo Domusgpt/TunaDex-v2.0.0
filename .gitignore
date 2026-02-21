@@ -1,0 +1,32 @@
+# Credentials & secrets
+token.json
+credentials.json
+service-account-key.json
+*.pem
+.env
+
+# Local data (tracked separately or too large for git)
+data/raw/
+data/processed/
+data/reports/
+data/logs/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
