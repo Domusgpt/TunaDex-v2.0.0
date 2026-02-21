@@ -16,6 +16,7 @@
     "build:frontend": "npm run build -w packages/frontend",
     "mcp": "npm run start:stdio -w packages/mcp-server",
     "mcp:doppler": "doppler run -- npm run mcp",
+    "secrets:setup": "./scripts/doppler-setup.sh",
     "secrets:import": "./scripts/doppler-import.sh",
     "secrets:list": "doppler secrets --project tunadex --config dev"
   },
