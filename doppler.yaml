@@ -1,0 +1,3 @@
+setup:
+  project: tunadex
+  config: dev
