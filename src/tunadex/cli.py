@@ -39,9 +39,11 @@ def auth():
 @click.option("--date", "target_date", default=None, help="Date to process (YYYY-MM-DD). Default: today.")
 @click.option("--lookback", default=1, help="Days to look back (default: 1).")
 @click.option("--engine", default="gemini", type=click.Choice(["gemini"]), help="Extraction engine.")
+@click.option("--source", default="auto", type=click.Choice(["auto", "gmail", "sheet"]),
+              help="Email source: gmail (OAuth), sheet (Apps Script relay), or auto (try sheet first).")
 @click.option("--skip-drive", is_flag=True, help="Skip uploading attachments to Drive.")
 @click.option("--skip-sheets", is_flag=True, help="Skip pushing data to Google Sheets.")
-def run(target_date: str | None, lookback: int, engine: str, skip_drive: bool, skip_sheets: bool):
+def run(target_date: str | None, lookback: int, engine: str, source: str, skip_drive: bool, skip_sheets: bool):
     """Run the daily email trawl pipeline."""
     if target_date:
         d = date.fromisoformat(target_date)
@@ -49,21 +51,46 @@ def run(target_date: str | None, lookback: int, engine: str, skip_drive: bool, s
         d = date.today()
 
     click.echo(f"TunaDex Daily Trawl — {d.isoformat()}")
-    click.echo(f"Engine: {engine} | Lookback: {lookback} day(s)")
+    click.echo(f"Engine: {engine} | Source: {source} | Lookback: {lookback} day(s)")
     click.echo("=" * 50)
 
     # Step 1: Authenticate
     click.echo("\n[1/6] Authenticating...")
     from tunadex.auth.credentials import get_drive_service, get_gmail_service, get_spreadsheet
 
-    gmail = get_gmail_service()
-    click.echo("  Gmail: OK")
+    # Determine email source
+    use_sheet = False
+    if source == "sheet":
+        use_sheet = True
+    elif source == "auto":
+        # Try sheet first (no OAuth needed), fall back to Gmail
+        try:
+            spreadsheet = get_spreadsheet()
+            spreadsheet.worksheet("Raw Emails")
+            use_sheet = True
+            click.echo("  Source: Sheet relay (auto-detected)")
+        except Exception:
+            use_sheet = False
+
+    if use_sheet:
+        spreadsheet = get_spreadsheet()
+        drive = get_drive_service()
+        click.echo("  Sheets: OK")
+        click.echo("  Drive: OK")
+    else:
+        gmail = get_gmail_service()
+        click.echo("  Gmail: OK")
 
     # Step 2: Search emails
     click.echo("\n[2/6] Searching for shipment emails...")
-    from tunadex.email.trawler import EmailTrawler
 
-    trawler = EmailTrawler(gmail)
+    if use_sheet:
+        from tunadex.email.sheet_trawler import SheetTrawler
+        trawler = SheetTrawler(spreadsheet, drive)
+    else:
+        from tunadex.email.trawler import EmailTrawler
+        trawler = EmailTrawler(gmail)
+
     messages = trawler.search_shipment_emails(d, lookback_days=lookback)
     click.echo(f"  Found {len(messages)} email(s)")
 
