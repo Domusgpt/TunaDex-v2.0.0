@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.env
+*.sa-key.json
+google-sa-key.json
+firebase-sa-key.json
+.firebase/
+*.log
+.DS_Store
