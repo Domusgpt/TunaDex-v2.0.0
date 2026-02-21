@@ -1,0 +1,99 @@
+name: "TunaDex Daily Trawl (Gemini Backup)"
+
+on:
+  schedule:
+    # Runs at midnight UTC (7 PM ET) — after Claude's local window
+    - cron: "0 0 * * 1-6"
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  trawl:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -e .
+
+      - name: Write credentials files
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
+        run: |
+          # Create OAuth2 token.json from refresh token
+          python -c "
+          import json
+          token_data = {
+              'token': '',
+              'refresh_token': '${{ secrets.GOOGLE_REFRESH_TOKEN }}',
+              'token_uri': 'https://oauth2.googleapis.com/token',
+              'client_id': '${{ secrets.GOOGLE_CLIENT_ID }}',
+              'client_secret': '${{ secrets.GOOGLE_CLIENT_SECRET }}',
+              'scopes': [
+                  'https://www.googleapis.com/auth/gmail.readonly',
+                  'https://www.googleapis.com/auth/drive.file',
+                  'https://www.googleapis.com/auth/spreadsheets'
+              ]
+          }
+          with open('token.json', 'w') as f:
+              json.dump(token_data, f)
+          print('token.json created')
+          "
+
+      - name: Check if Claude already ran today
+        id: check
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+          GOOGLE_SHEETS_ID: ${{ secrets.GOOGLE_SHEETS_ID }}
+          DRIVE_ROOT_FOLDER_ID: ${{ secrets.DRIVE_ROOT_FOLDER_ID }}
+        run: |
+          result=$(python -c "
+          import sys
+          from datetime import date, datetime
+          try:
+              from tunadex.auth.credentials import get_spreadsheet
+              from tunadex.storage.sheets import SheetsStorage
+              spreadsheet = get_spreadsheet()
+              sheets = SheetsStorage(spreadsheet)
+              last = sheets.get_last_update_timestamp()
+              if last and last.date() == date.today():
+                  print('SKIP')
+              else:
+                  print('RUN')
+          except Exception as e:
+              print(f'RUN')
+              print(f'Check failed: {e}', file=sys.stderr)
+          ")
+          echo "action=$result" >> $GITHUB_OUTPUT
+
+      - name: Run daily trawl
+        if: steps.check.outputs.action != 'SKIP'
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+          GOOGLE_SHEETS_ID: ${{ secrets.GOOGLE_SHEETS_ID }}
+          DRIVE_ROOT_FOLDER_ID: ${{ secrets.DRIVE_ROOT_FOLDER_ID }}
+          GCP_LOCATION: us-central1
+        run: python -m tunadex run --date today --engine gemini
+
+      - name: Skip message
+        if: steps.check.outputs.action == 'SKIP'
+        run: echo "Claude already ran today. Skipping Gemini backup."
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trawl-logs-${{ github.run_id }}
+          path: data/
+          retention-days: 30

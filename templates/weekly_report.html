@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TunaDex Weekly Report</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+               max-width: 1200px; margin: 0 auto; padding: 20px; background: #f0f4f8; color: #2d3748; }
+        .header { background: linear-gradient(135deg, #2d3748, #4a5568); color: white;
+                  padding: 24px; border-radius: 12px; margin-bottom: 20px; }
+        .header h1 { font-size: 24px; margin-bottom: 4px; }
+        .header p { opacity: 0.85; font-size: 14px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px; }
+        .stat-card { background: white; border-radius: 8px; padding: 20px;
+                     box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .stat-card .label { font-size: 12px; text-transform: uppercase; color: #718096; font-weight: 600; }
+        .stat-card .value { font-size: 28px; font-weight: 700; color: #1a365d; margin-top: 4px; }
+        .card { background: white; border-radius: 8px; padding: 20px;
+                margin: 16px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        h2 { color: #1a365d; font-size: 18px; margin-bottom: 12px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #edf2f7; padding: 10px 12px; text-align: left; font-size: 12px;
+             text-transform: uppercase; color: #4a5568; font-weight: 600; }
+        td { padding: 10px 12px; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
+        .chart-container { height: 400px; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>TunaDex Weekly Report</h1>
+        <p>{% if payloads %}{{ payloads[0].date }} — {{ payloads[-1].date }}{% endif %}</p>
+    </div>
+
+    <div class="grid">
+        <div class="stat-card">
+            <div class="label">Days Active</div>
+            <div class="value">{{ payloads | length }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Total Shipments</div>
+            <div class="value">{{ payloads | sum(attribute='shipments') if payloads else 0 }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Total Weight</div>
+            <div class="value">{{ "%.0f" | format(payloads | sum(attribute='totals.total_weight_lbs') if payloads else 0) }} lbs</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Total Boxes</div>
+            <div class="value">{{ payloads | sum(attribute='totals.total_boxes') if payloads else 0 }}</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Daily Volume Trend</h2>
+        <div id="trend-chart" class="chart-container"></div>
+    </div>
+
+    <div class="two-col">
+        <div class="card">
+            <h2>Species Distribution</h2>
+            <div id="species-chart" class="chart-container"></div>
+        </div>
+        <div class="card">
+            <h2>Top Customers</h2>
+            <div id="customer-chart" class="chart-container"></div>
+        </div>
+    </div>
+
+    <script>
+        var chartData = {{ chart_data_json }};
+
+        Plotly.newPlot('trend-chart', [
+            { x: chartData.daily_trend.dates, y: chartData.daily_trend.weights,
+              type: 'scatter', mode: 'lines+markers', name: 'Weight (lbs)',
+              line: { color: '#3182ce', width: 3 },
+              marker: { size: 8 } },
+            { x: chartData.daily_trend.dates, y: chartData.daily_trend.boxes,
+              type: 'bar', name: 'Boxes', yaxis: 'y2',
+              marker: { color: '#bee3f8', opacity: 0.6 } }
+        ], {
+            yaxis: { title: 'Weight (lbs)' },
+            yaxis2: { title: 'Boxes', overlaying: 'y', side: 'right' },
+            margin: { t: 10 }, legend: { orientation: 'h', y: -0.15 }
+        });
+
+        Plotly.newPlot('species-chart', [{
+            labels: chartData.species_pie.labels,
+            values: chartData.species_pie.values,
+            type: 'pie', hole: 0.45,
+        }], { margin: { t: 10, b: 10 } });
+
+        Plotly.newPlot('customer-chart', [{
+            y: chartData.customer_bar.names.slice().reverse(),
+            x: chartData.customer_bar.weights.slice().reverse(),
+            type: 'bar', orientation: 'h',
+            marker: { color: '#3182ce' }
+        }], { xaxis: { title: 'Weight (lbs)' }, margin: { t: 10, l: 150 } });
+    </script>
+</body>
+</html>
