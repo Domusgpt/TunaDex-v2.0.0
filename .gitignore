@@ -1,6 +1,7 @@
 # Credentials & secrets
 token.json
 credentials.json
+service-account-key.json
 *.pem
 .env
 
