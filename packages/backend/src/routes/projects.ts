@@ -5,6 +5,7 @@ import { ProjectStore } from "../firestore/projects.js";
 import { createGitHubClient } from "../github/client.js";
 import { discoverProjects } from "../github/discovery.js";
 import { getMockProjects } from "../github/mock-data.js";
+import type { Project } from "../firestore/types.js";
 
 const router = Router();
 
@@ -43,6 +44,43 @@ function paramString(val: string | string[] | undefined): string {
 }
 
 // ---------------------------------------------------------------------------
+// Transform backend Project → frontend-expected shape
+// ---------------------------------------------------------------------------
+
+function transformProject(p: Project): Record<string, unknown> {
+  return {
+    ...p,
+    name: p.id,
+    isPrivate: p.visibility === "private",
+    isArchived: false,
+    isFork: false,
+    pullRequests: (p.openPRs ?? []).map((pr) => ({
+      ...pr,
+      draft: false,
+    })),
+    branches: (p.branches ?? []).map((b) => ({
+      name: b.name,
+      sha: b.lastCommitSha,
+      lastCommitMessage: "",
+      lastCommitDate: b.lastCommitDate,
+      isProtected: b.isDefault,
+      isDefault: b.isDefault,
+    })),
+    recentCommits: p.recentCommits ?? [],
+    lastWorkflowRun: p.actionsStatus
+      ? {
+          name: p.actionsStatus.name,
+          status: p.actionsStatus.status,
+          conclusion: p.actionsStatus.conclusion,
+          branch: p.defaultBranch,
+          createdAt: p.actionsStatus.createdAt,
+          url: p.actionsStatus.url,
+        }
+      : null,
+  };
+}
+
+// ---------------------------------------------------------------------------
 // GET /api/projects
 // ---------------------------------------------------------------------------
 
@@ -59,10 +97,7 @@ router.get("/api/projects", async (req: Request, res: Response) => {
       offset: queryInt(offset),
     });
 
-    res.json({
-      data: projects,
-      count: projects.length,
-    });
+    res.json(projects.map(transformProject));
   } catch (err) {
     console.error("[projects] GET /api/projects error:", err);
     res.status(500).json({ error: "Failed to fetch projects" });
@@ -75,8 +110,25 @@ router.get("/api/projects", async (req: Request, res: Response) => {
 
 router.get("/api/projects/stats", async (_req: Request, res: Response) => {
   try {
-    const stats = await ProjectStore.getStats();
-    res.json(stats);
+    const raw = await ProjectStore.getStats();
+    // Transform to match frontend expected shape
+    const allProjects = await ProjectStore.getAllProjects();
+    const languagesUsed = new Set<string>();
+    for (const p of allProjects) {
+      if (p.language) languagesUsed.add(p.language);
+      for (const lang of Object.keys(p.languages)) {
+        languagesUsed.add(lang);
+      }
+    }
+    res.json({
+      totalProjects: raw.totalRepos,
+      activeProjects: raw.byStatus["active"] ?? 0,
+      openPullRequests: raw.totalOpenPRs,
+      recentCommits: raw.recentCommitsCount,
+      languagesUsed: Array.from(languagesUsed),
+      categoryCounts: raw.byCategory,
+      statusCounts: raw.byStatus,
+    });
   } catch (err) {
     console.error("[projects] GET /api/projects/stats error:", err);
     res.status(500).json({ error: "Failed to fetch stats" });
@@ -95,7 +147,7 @@ router.get("/api/projects/:id", async (req: Request, res: Response) => {
       res.status(404).json({ error: "Project not found" });
       return;
     }
-    res.json(project);
+    res.json(transformProject(project));
   } catch (err) {
     console.error("[projects] GET /api/projects/:id error:", err);
     res.status(500).json({ error: "Failed to fetch project" });
@@ -161,7 +213,7 @@ router.patch(
       }
 
       const project = await ProjectStore.getProject(id);
-      res.json(project);
+      res.json(project ? transformProject(project) : null);
     } catch (err) {
       console.error("[projects] PATCH /api/projects/:id/tags error:", err);
       res.status(500).json({ error: "Failed to update tags" });

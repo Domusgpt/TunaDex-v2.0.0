@@ -25,16 +25,21 @@ export async function initFirestore(): Promise<FirestoreDb | null> {
 
   try {
     const fs = await import("node:fs");
-    if (!fs.existsSync(config.FIREBASE_SA_KEY)) {
+    const nodePath = await import("node:path");
+    const { fileURLToPath } = await import("node:url");
+    const thisDir = nodePath.default.dirname(fileURLToPath(import.meta.url));
+    // Resolve SA key path relative to repo root
+    const saKeyPath = nodePath.default.resolve(thisDir, "../../../../", config.FIREBASE_SA_KEY);
+    if (!fs.existsSync(saKeyPath)) {
       console.warn(
-        `[firestore] Service account file not found: ${config.FIREBASE_SA_KEY} — using in-memory store`
+        `[firestore] Service account file not found: ${saKeyPath} — using in-memory store`
       );
       return null;
     }
 
     const admin = await import("firebase-admin");
     const serviceAccount = JSON.parse(
-      fs.readFileSync(config.FIREBASE_SA_KEY, "utf-8")
+      fs.readFileSync(saKeyPath, "utf-8")
     );
 
     admin.default.initializeApp({
