@@ -1,0 +1,33 @@
+---
+name: {{name}}
+version: {{version}}
+description: {{description}}
+author: {{author}}
+license: {{license}}
+tags: [{{#each tags}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}]
+category: {{category}}
+trust-level: community
+user-invocable: true
+---
+
+# {{name}}
+
+{{description}}
+
+## When to Use
+
+Describe when this skill should be invoked.
+
+## Instructions
+
+Describe what the AI should do when this skill is activated.
+
+## Examples
+
+Provide example inputs and expected behavior.
+
+## Guidelines
+
+- Keep instructions clear and specific
+- Include error handling guidance
+- Reference any supporting files in scripts/ or references/

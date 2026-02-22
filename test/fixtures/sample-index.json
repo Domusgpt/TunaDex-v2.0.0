@@ -1,0 +1,81 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-02-22T00:00:00Z",
+  "skills": {
+    "code-reviewer": {
+      "name": "code-reviewer",
+      "version": "2.1.0",
+      "description": "An AI skill that reviews code for best practices, bugs, and security issues",
+      "author": "devtools-team",
+      "tags": ["code-review", "testing", "security", "typescript"],
+      "category": "development",
+      "repository": "https://github.com/skillli/code-reviewer",
+      "trustLevel": "verified",
+      "downloads": 5420,
+      "rating": { "average": 4.5, "count": 128, "distribution": [2, 5, 10, 40, 71] },
+      "publishedAt": "2026-01-15T00:00:00Z",
+      "updatedAt": "2026-02-10T00:00:00Z",
+      "checksum": "sha256:abc123"
+    },
+    "api-designer": {
+      "name": "api-designer",
+      "version": "1.3.0",
+      "description": "Design RESTful and GraphQL APIs with best practices and OpenAPI spec generation",
+      "author": "api-guild",
+      "tags": ["api", "rest", "graphql", "openapi", "design"],
+      "category": "development",
+      "repository": "https://github.com/skillli/api-designer",
+      "trustLevel": "community",
+      "downloads": 1230,
+      "rating": { "average": 4.0, "count": 45, "distribution": [1, 3, 5, 20, 16] },
+      "publishedAt": "2026-01-20T00:00:00Z",
+      "updatedAt": "2026-02-01T00:00:00Z",
+      "checksum": "sha256:def456"
+    },
+    "data-pipeline": {
+      "name": "data-pipeline",
+      "version": "1.0.0",
+      "description": "Build and orchestrate data pipelines with ETL best practices and monitoring",
+      "author": "data-eng",
+      "tags": ["data", "etl", "pipeline", "monitoring"],
+      "category": "data",
+      "repository": "https://github.com/skillli/data-pipeline",
+      "trustLevel": "community",
+      "downloads": 890,
+      "rating": { "average": 3.8, "count": 22, "distribution": [1, 2, 4, 8, 7] },
+      "publishedAt": "2026-02-01T00:00:00Z",
+      "updatedAt": "2026-02-15T00:00:00Z",
+      "checksum": "sha256:ghi789"
+    },
+    "creative-writer": {
+      "name": "creative-writer",
+      "version": "1.5.0",
+      "description": "Agentic creative writing assistant with style adaptation and narrative structure",
+      "author": "wordsmith",
+      "tags": ["writing", "creative", "narrative", "content"],
+      "category": "creative",
+      "repository": "https://github.com/skillli/creative-writer",
+      "trustLevel": "official",
+      "downloads": 3200,
+      "rating": { "average": 4.7, "count": 89, "distribution": [0, 1, 4, 18, 66] },
+      "publishedAt": "2025-12-01T00:00:00Z",
+      "updatedAt": "2026-02-18T00:00:00Z",
+      "checksum": "sha256:jkl012"
+    },
+    "k8s-deployer": {
+      "name": "k8s-deployer",
+      "version": "2.0.0",
+      "description": "Deploy and manage Kubernetes applications with automated rollouts and monitoring",
+      "author": "devops-pro",
+      "tags": ["kubernetes", "k8s", "devops", "deployment", "monitoring"],
+      "category": "devops",
+      "repository": "https://github.com/skillli/k8s-deployer",
+      "trustLevel": "verified",
+      "downloads": 2100,
+      "rating": { "average": 4.2, "count": 56, "distribution": [1, 2, 6, 22, 25] },
+      "publishedAt": "2026-01-10T00:00:00Z",
+      "updatedAt": "2026-02-20T00:00:00Z",
+      "checksum": "sha256:mno345"
+    }
+  }
+}
