@@ -1,16 +1,14 @@
-/**
- * TunaDex Email Relay — Google Apps Script
- *
- * Searches Gmail for shipment emails from Victor & Norman,
- * dumps content to the "Raw Emails" tab and attachments to Drive.
- *
- * SETUP:
- *   1. Open https://script.google.com → New Project
- *   2. Paste this entire file
- *   3. Update SHEET_ID and DRIVE_FOLDER_ID below
- *   4. Run setupTrigger() once (or set a trigger manually)
- *   5. Authorize when prompted
- */
+// TunaDex Email Relay — Google Apps Script
+//
+// Searches Gmail for shipment emails from Victor & Norman,
+// dumps content to the "Raw Emails" tab and attachments to Drive.
+//
+// SETUP:
+//   1. Open https://script.google.com -> New Project
+//   2. Paste this entire file
+//   3. Update SHEET_ID and DRIVE_FOLDER_ID below
+//   4. Run setupTrigger() once (or set a trigger manually)
+//   5. Authorize when prompted
 
 // ===== CONFIGURATION =====
 var SHEET_ID = "1NhRN7M_KQsYCDayahbBeaPvSKA1BF1T_5UcDcE85K0M";
@@ -183,9 +181,7 @@ function getOrCreateSubfolder_(parent, name) {
 
 // ===== TRIGGER SETUP =====
 
-/**
- * Run this once to set up automatic execution every 2 hours.
- */
+// Run this once to set up automatic execution every 2 hours.
 function setupTrigger() {
   // Remove any existing triggers for this function
   var triggers = ScriptApp.getProjectTriggers();
@@ -204,9 +200,7 @@ function setupTrigger() {
   Logger.log("Trigger created: relayShipmentEmails every 2 hours");
 }
 
-/**
- * Run this manually to do a first-time backfill of the last 7 days.
- */
+// Run this manually to do a first-time backfill of the last 7 days.
 function backfill7Days() {
   // Temporarily increase lookback
   LOOKBACK_HOURS = 168;  // 7 days
