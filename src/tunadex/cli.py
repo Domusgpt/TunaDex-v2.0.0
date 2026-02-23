@@ -300,5 +300,17 @@ def dashboard():
     subprocess.run([sys.executable, "-m", "streamlit", "run", app_path])
 
 
+@cli.command()
+def setup():
+    """Run the one-shot setup wizard (check APIs, create tabs, test connections)."""
+    import subprocess
+
+    setup_script = str(
+        __import__("pathlib").Path(__file__).resolve().parent.parent.parent.parent
+        / "scripts" / "setup.py"
+    )
+    subprocess.run([sys.executable, setup_script])
+
+
 if __name__ == "__main__":
     cli()

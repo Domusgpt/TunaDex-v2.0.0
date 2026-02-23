@@ -24,6 +24,7 @@ from tunadex.extraction.schema import (
     EmailDetail,
     Severity,
     Shipment,
+    ShipmentLine,
 )
 
 logger = logging.getLogger(__name__)
@@ -136,7 +137,6 @@ class GeminiExtractor:
                     source_email_ids=[e.message_id for e in emails],
                 )
                 for line in s.get("lines", []):
-                    from tunadex.extraction.schema import ShipmentLine
                     shipment.lines.append(ShipmentLine(**line))
                 shipments.append(shipment)
             except Exception as e:
