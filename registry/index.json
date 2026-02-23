@@ -9,13 +9,13 @@
       "author": "domusgpt",
       "tags": ["skills", "discovery", "mcp", "claude", "agent", "marketplace", "registry", "search"],
       "category": "development",
-      "repository": "https://github.com/Domusgpt/TunaDex-v2.0.0",
+      "repository": "https://github.com/Domusgpt/skillli",
       "trustLevel": "official",
       "downloads": 1,
       "rating": { "average": 5.0, "count": 1, "distribution": [0, 0, 0, 0, 1] },
       "publishedAt": "2026-02-23T00:00:00Z",
       "updatedAt": "2026-02-23T00:00:00Z",
-      "checksum": "sha256:987fb1f6b2afc212f0ab1a937758c42ef4678eafa2b54537df7b72fcb73cda1a"
+      "checksum": "sha256:0e5256f56f228ce2186f5e6882e2737c924f331d7af8758fed52f30406a7410e"
     },
     "code-reviewer": {
       "name": "code-reviewer",

@@ -10,7 +10,7 @@ author: domusgpt
 license: MIT
 tags: [skills, discovery, mcp, claude, agent, marketplace, registry, search]
 category: development
-repository: https://github.com/Domusgpt/TunaDex-v2.0.0
+repository: https://github.com/Domusgpt/skillli
 trust-level: official
 disable-model-invocation: false
 user-invocable: true

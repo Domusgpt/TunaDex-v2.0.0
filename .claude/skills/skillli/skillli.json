@@ -15,9 +15,9 @@
     "search"
   ],
   "category": "development",
-  "repository": "https://github.com/Domusgpt/TunaDex-v2.0.0",
+  "repository": "https://github.com/Domusgpt/skillli",
   "trust_level": "official",
-  "checksum": "sha256:987fb1f6b2afc212f0ab1a937758c42ef4678eafa2b54537df7b72fcb73cda1a",
+  "checksum": "sha256:0e5256f56f228ce2186f5e6882e2737c924f331d7af8758fed52f30406a7410e",
   "files": [
     "SKILL.md",
     "references/skill-format-spec.md"
