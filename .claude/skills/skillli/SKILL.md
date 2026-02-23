@@ -1,12 +1,17 @@
 ---
 name: skillli
-description: >
+version: 0.1.0
+description: >-
   Discover, search, install, rate, and manage agentic AI skills from the
-  skillli registry. Use this skill when the user wants to find skills for
-  a specific task, install a skill, publish their own skill, check skill
-  ratings, or when Claude needs to search for relevant skills and context
-  packages to accomplish a task. Triggers on: /skillli, "find a skill",
-  "search for skills", "install skill", "skill marketplace".
+  skillli registry. Use when the user wants to find skills, install a skill,
+  publish their own skill, check ratings, or when Claude needs to find
+  relevant skills and context packages for a task.
+author: domusgpt
+license: MIT
+tags: [skills, discovery, mcp, claude, agent, marketplace, registry, search]
+category: development
+repository: https://github.com/Domusgpt/TunaDex-v2.0.0
+trust-level: official
 disable-model-invocation: false
 user-invocable: true
 ---

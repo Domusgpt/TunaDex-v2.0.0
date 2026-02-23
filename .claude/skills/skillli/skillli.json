@@ -1,0 +1,26 @@
+{
+  "name": "skillli",
+  "version": "0.1.0",
+  "description": "Discover, search, install, rate, and manage agentic AI skills from the skillli registry. Use when the user wants to find skills, install a skill, publish their own skill, check ratings, or when Claude needs to find relevant skills and context packages for a task.",
+  "author": "domusgpt",
+  "license": "MIT",
+  "tags": [
+    "skills",
+    "discovery",
+    "mcp",
+    "claude",
+    "agent",
+    "marketplace",
+    "registry",
+    "search"
+  ],
+  "category": "development",
+  "repository": "https://github.com/Domusgpt/TunaDex-v2.0.0",
+  "trust_level": "official",
+  "checksum": "sha256:987fb1f6b2afc212f0ab1a937758c42ef4678eafa2b54537df7b72fcb73cda1a",
+  "files": [
+    "SKILL.md",
+    "references/skill-format-spec.md"
+  ],
+  "size_bytes": 5224
+}
